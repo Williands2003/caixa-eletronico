@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Caixa Eletrônico</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: Arial, sans-serif;
+        }
+        .atm-screen {
+            background-color: #343a40;
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 50px auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .screen-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="atm-screen">
+        <h1>Caixa Eletrônico</h1>
+        
+        <div class="form-group">
+            <label for="operation" class="screen-title">Selecione a operação:</label>
+            <select id="operation" class="form-control">
+                <option value="">Escolha uma operação</option>
+                <option value="checkBalance">Consultar Saldo</option>
+                <option value="withdraw">Sacar</option>
+                <option value="deposit">Depositar</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="amountContainer">
+            <label for="amount">Valor:</label>
+            <input type="number" id="amount" class="form-control" placeholder="Insira o valor" min="0">
+        </div>
+
+        <button id="performAction" class="btn btn-primary">Realizar</button>
+
+        <p id="result" class="result"></p>
+    </div>
+
+    <script>
+        let balance = 1000; // Saldo inicial
+
+        // Esconde o campo de entrada de valor inicialmente
+        document.getElementById('amountContainer').style.display = 'none';
+
+        // Adiciona um evento de mudança para mostrar/esconder o campo de entrada
+        document.getElementById('operation').addEventListener('change', function() {
+            const operation = this.value;
+            const amountContainer = document.getElementById('amountContainer');
+
+            if (operation === 'checkBalance') {
+                amountContainer.style.display = 'none'; // Esconde para consultar saldo
+            } else {
+                amountContainer.style.display = 'block'; // Mostra para sacar ou depositar
+            }
+        });
+
+        document.getElementById('performAction').addEventListener('click', function() {
+            const operation = document.getElementById('operation').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const result = document.getElementById('result');
+
+            result.className = 'result'; // Reseta a classe
+
+            if (operation === '') {
+                result.textContent = 'Por favor, selecione uma operação.';
+                result.classList.add('error');
+                return;
+            }
+
+            if (operation !== 'checkBalance' && (isNaN(amount) || amount <= 0)) {
+                result.textContent = 'Por favor, insira um valor válido.';
+                result.classList.add('error');
+                return;
+            }
+
+            switch (operation) {
+                case 'checkBalance':
+                    result.textContent = `Seu saldo é: R$ ${balance.toFixed(2)}`;
+                    break;
+                case 'withdraw':
+                    if (amount > balance) {
+                        result.textContent = 'Saldo insuficiente para esta operação.';
+                        result.classList.add('error');
+                    } else {
+                        balance -= amount;
+                        result.textContent = `Você sacou R$ ${amount.toFixed(2)}. Seu novo saldo é: R$ ${balance.toFixed(2)}`;
+                        result.classList.add('success');
+                    }
+                    break;
+                case 'deposit':
+                    balance += amount;
+                    result.textContent = `Você depositou R$ ${amount.toFixed(2)}. Seu novo saldo é: R$ ${balance.toFixed(2)}`;
+                    result.classList.add('success');
+                    break;
+                default:
+                    result.textContent = 'Operação inválida.';
+                    result.classList.add('error');
+            }
+        });
+    </script>
+</body>
+</html>
